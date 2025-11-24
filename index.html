@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo da Cobrinha</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🐍 Jogo da Cobrinha</h1>
+        <div class="game-info">
+            <div class="score">Pontuação: <span id="score">0</span></div>
+            <div class="high-score">Recorde: <span id="high-score">0</span></div>
+        </div>
+        <canvas id="gameCanvas" width="400" height="400"></canvas>
+        <div class="controls">
+            <p>Use as setas ← ↑ → ↓ para controlar a cobrinha</p>
+            <button id="startBtn">Iniciar Jogo</button>
+            <button id="resetBtn">Reiniciar</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
