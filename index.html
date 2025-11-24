@@ -1,23 +1,44 @@
-<div class="buttons">
-    <button class="btn clear" onclick="clearAll()">C</button>
-    <button class="btn operator" onclick="pressOperator('/')">/</button>
-    <button class="btn operator" onclick="pressOperator('*')">×</button>
-    
-    <button class="btn number" onclick="pressNumber(7)">7</button>
-    <button class="btn number" onclick="pressNumber(8)">8</button>
-    <button class="btn number" onclick="pressNumber(9)">9</button>
-    <button class="btn operator" onclick="pressOperator('-')">-</button>
-    
-    <button class="btn number" onclick="pressNumber(4)">4</button>
-    <button class="btn number" onclick="pressNumber(5)">5</button>
-    <button class="btn number" onclick="pressNumber(6)">6</button>
-    <button class="btn operator" onclick="pressOperator('+')">+</button>
-    
-    <button class="btn number" onclick="pressNumber(1)">1</button>
-    <button class="btn number" onclick="pressNumber(2)">2</button>
-    <button class="btn number" onclick="pressNumber(3)">3</button>
-    <button class="btn equals" onclick="calculateResult()">=</button>
-    
-    <button class="btn number zero" onclick="pressNumber(0)">0</button>
-    <button class="btn number" onclick="pressDot()">.</button>
-</div>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🧮 Calculadora</h1>
+        <div class="calculator">
+            <div class="display">
+                <input type="text" id="display" readonly value="0">
+            </div>
+            <div class="buttons">
+                <button class="btn clear" onclick="clearAll()">C</button>
+                <button class="btn clear" onclick="backspace()">⌫</button>
+                <button class="btn operator" onclick="appendToDisplay('/')">/</button>
+                <button class="btn operator" onclick="appendToDisplay('*')">×</button>
+                
+                <button class="btn number" onclick="appendToDisplay('7')">7</button>
+                <button class="btn number" onclick="appendToDisplay('8')">8</button>
+                <button class="btn number" onclick="appendToDisplay('9')">9</button>
+                <button class="btn operator" onclick="appendToDisplay('-')">-</button>
+                
+                <button class="btn number" onclick="appendToDisplay('4')">4</button>
+                <button class="btn number" onclick="appendToDisplay('5')">5</button>
+                <button class="btn number" onclick="appendToDisplay('6')">6</button>
+                <button class="btn operator" onclick="appendToDisplay('+')">+</button>
+                
+                <button class="btn number" onclick="appendToDisplay('1')">1</button>
+                <button class="btn number" onclick="appendToDisplay('2')">2</button>
+                <button class="btn number" onclick="appendToDisplay('3')">3</button>
+                <button class="btn equals" onclick="calculate()">=</button>
+                
+                <button class="btn number zero" onclick="appendToDisplay('0')">0</button>
+                <button class="btn number" onclick="appendToDisplay('.')">.</button>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
