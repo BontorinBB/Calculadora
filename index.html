@@ -11,11 +11,11 @@
         <h1>🧮 Calculadora</h1>
         <div class="calculator">
             <div class="display">
-                <input type="text" id="result" readonly>
+                <input type="text" id="display" readonly value="0">
             </div>
             <div class="buttons">
-                <button class="btn clear" onclick="clearDisplay()">C</button>
-                <button class="btn clear" onclick="deleteLast()">⌫</button>
+                <button class="btn clear" onclick="clearAll()">C</button>
+                <button class="btn clear" onclick="backspace()">⌫</button>
                 <button class="btn operator" onclick="appendToDisplay('/')">/</button>
                 <button class="btn operator" onclick="appendToDisplay('*')">×</button>
                 
@@ -32,16 +32,11 @@
                 <button class="btn number" onclick="appendToDisplay('1')">1</button>
                 <button class="btn number" onclick="appendToDisplay('2')">2</button>
                 <button class="btn number" onclick="appendToDisplay('3')">3</button>
-                <button class="btn equals" onclick="calculate()" rowspan="2">=</button>
+                <button class="btn equals" onclick="calculate()">=</button>
                 
                 <button class="btn number zero" onclick="appendToDisplay('0')">0</button>
                 <button class="btn number" onclick="appendToDisplay('.')">.</button>
             </div>
-        </div>
-        <div class="history">
-            <h3>Histórico</h3>
-            <div id="historyList"></div>
-            <button onclick="clearHistory()" class="clear-history">Limpar Histórico</button>
         </div>
     </div>
     <script src="script.js"></script>
