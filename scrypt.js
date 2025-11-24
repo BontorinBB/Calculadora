@@ -1,122 +1,79 @@
-const resultElement = document.getElementById('result');
-const historyListElement = document.getElementById('historyList');
+let display = document.getElementById('display');
+let currentInput = '0';
+let shouldResetDisplay = false;
 
-let currentInput = '';
-let history = JSON.parse(localStorage.getItem('calculatorHistory')) || [];
-
-function updateHistory() {
-    historyListElement.innerHTML = '';
-    history.slice(-10).reverse().forEach(item => {
-        const historyItem = document.createElement('div');
-        historyItem.className = 'history-item';
-        historyItem.textContent = item;
-        historyListElement.appendChild(historyItem);
-    });
+function updateDisplay() {
+    display.value = currentInput;
 }
 
 function appendToDisplay(value) {
-    // Limitar o tamanho do display
-    if (currentInput.length >= 20) return;
-    
-    const lastChar = currentInput.slice(-1);
-    
-    // Prevenir múltiplos operadores em sequência
-    if ('+-*/'.includes(value) && '+-*/'.includes(lastChar)) {
-        // Substituir o último operador pelo novo
-        currentInput = currentInput.slice(0, -1) + value;
+    if (currentInput === '0' || shouldResetDisplay) {
+        currentInput = value;
+        shouldResetDisplay = false;
     } else {
         currentInput += value;
     }
-    
-    resultElement.value = currentInput;
+    updateDisplay();
 }
 
-function clearDisplay() {
-    currentInput = '';
-    resultElement.value = '';
+function clearAll() {
+    currentInput = '0';
+    updateDisplay();
 }
 
-function deleteLast() {
-    currentInput = currentInput.slice(0, -1);
-    resultElement.value = currentInput;
+function backspace() {
+    if (currentInput.length > 1) {
+        currentInput = currentInput.slice(0, -1);
+    } else {
+        currentInput = '0';
+    }
+    updateDisplay();
 }
 
 function calculate() {
-    if (!currentInput) return;
-    
     try {
-        // Substituir × por * para cálculo
+        // Substituir × por * para o cálculo
         let expression = currentInput.replace(/×/g, '*');
         
-        // Validação básica de segurança
-        if (!/^[0-9+\-*/.()]+$/.test(expression)) {
+        // Verificar se a expressão é válida
+        if (!isValidExpression(expression)) {
             throw new Error('Expressão inválida');
         }
         
-        // Verificar parênteses balanceados
-        let parenthesesCount = 0;
-        for (let char of expression) {
-            if (char === '(') parenthesesCount++;
-            if (char === ')') parenthesesCount--;
-            if (parenthesesCount < 0) throw new Error('Parênteses desbalanceados');
-        }
-        if (parenthesesCount !== 0) throw new Error('Parênteses desbalanceados');
+        // Calcular o resultado
+        let result = eval(expression);
         
-        // Avaliar a expressão de forma segura
-        let result;
-        
-        // Usar Function constructor como alternativa mais segura ao eval
-        try {
-            result = Function('"use strict"; return (' + expression + ')')();
-        } catch (e) {
-            throw new Error('Erro no cálculo');
-        }
-        
-        // Verificar se o resultado é válido
+        // Verificar se o resultado é um número válido
         if (typeof result !== 'number' || !isFinite(result)) {
             throw new Error('Resultado inválido');
         }
         
-        // Arredondar para evitar problemas de ponto flutuante
+        // Arredondar para evitar números muito longos
         result = Math.round(result * 100000000) / 100000000;
         
-        // Salvar no histórico
-        const calculation = `${currentInput} = ${result}`;
-        history.push(calculation);
-        
-        // Manter apenas os últimos 50 cálculos
-        if (history.length > 50) {
-            history = history.slice(-50);
-        }
-        
-        localStorage.setItem('calculatorHistory', JSON.stringify(history));
-        
-        // Atualizar display
         currentInput = result.toString();
-        resultElement.value = currentInput;
-        updateHistory();
+        shouldResetDisplay = true;
+        updateDisplay();
         
     } catch (error) {
-        showError();
+        currentInput = 'Erro';
+        updateDisplay();
+        setTimeout(() => {
+            currentInput = '0';
+            updateDisplay();
+        }, 1000);
     }
 }
 
-function showError() {
-    resultElement.value = 'Erro';
-    currentInput = '';
-    setTimeout(() => {
-        resultElement.value = '';
-    }, 1000);
-}
-
-function clearHistory() {
-    history = [];
-    localStorage.removeItem('calculatorHistory');
-    updateHistory();
+function isValidExpression(expr) {
+    // Permitir apenas números, operadores e ponto decimal
+    return /^[0-9+\-*/.()]+$/.test(expr);
 }
 
 // Suporte ao teclado
-document.addEventListener('keydown', (e) => {
+document.addEventListener('keydown', function(e) {
+    e.preventDefault();
+    
     const key = e.key;
     
     if ('0123456789'.includes(key)) {
@@ -128,23 +85,17 @@ document.addEventListener('keydown', (e) => {
     } else if (key === '*') {
         appendToDisplay('×');
     } else if (key === '/') {
-        e.preventDefault(); // Prevenir o menu de contexto no Firefox
         appendToDisplay('/');
     } else if (key === 'Enter' || key === '=') {
-        e.preventDefault();
         calculate();
     } else if (key === 'Escape' || key === 'c' || key === 'C') {
-        clearDisplay();
+        clearAll();
     } else if (key === 'Backspace') {
-        deleteLast();
+        backspace();
     } else if (key === '.') {
         appendToDisplay('.');
-    } else if (key === '(') {
-        appendToDisplay('(');
-    } else if (key === ')') {
-        appendToDisplay(')');
     }
 });
 
 // Inicializar
-updateHistory();
+updateDisplay();
