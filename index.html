@@ -3,21 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jogo da Cobrinha</title>
+    <title>Calculadora</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h1>🐍 Jogo da Cobrinha</h1>
-        <div class="game-info">
-            <div class="score">Pontuação: <span id="score">0</span></div>
-            <div class="high-score">Recorde: <span id="high-score">0</span></div>
+        <h1>🧮 Calculadora</h1>
+        <div class="calculator">
+            <div class="display">
+                <input type="text" id="result" readonly>
+            </div>
+            <div class="buttons">
+                <button class="btn clear" onclick="clearDisplay()">C</button>
+                <button class="btn clear" onclick="deleteLast()">⌫</button>
+                <button class="btn operator" onclick="appendToDisplay('/')">/</button>
+                <button class="btn operator" onclick="appendToDisplay('*')">×</button>
+                
+                <button class="btn number" onclick="appendToDisplay('7')">7</button>
+                <button class="btn number" onclick="appendToDisplay('8')">8</button>
+                <button class="btn number" onclick="appendToDisplay('9')">9</button>
+                <button class="btn operator" onclick="appendToDisplay('-')">-</button>
+                
+                <button class="btn number" onclick="appendToDisplay('4')">4</button>
+                <button class="btn number" onclick="appendToDisplay('5')">5</button>
+                <button class="btn number" onclick="appendToDisplay('6')">6</button>
+                <button class="btn operator" onclick="appendToDisplay('+')">+</button>
+                
+                <button class="btn number" onclick="appendToDisplay('1')">1</button>
+                <button class="btn number" onclick="appendToDisplay('2')">2</button>
+                <button class="btn number" onclick="appendToDisplay('3')">3</button>
+                <button class="btn equals" onclick="calculate()" rowspan="2">=</button>
+                
+                <button class="btn number zero" onclick="appendToDisplay('0')">0</button>
+                <button class="btn number" onclick="appendToDisplay('.')">.</button>
+            </div>
         </div>
-        <canvas id="gameCanvas" width="400" height="400"></canvas>
-        <div class="controls">
-            <p>Use as setas ← ↑ → ↓ para controlar a cobrinha</p>
-            <button id="startBtn">Iniciar Jogo</button>
-            <button id="resetBtn">Reiniciar</button>
+        <div class="history">
+            <h3>Histórico</h3>
+            <div id="historyList"></div>
+            <button onclick="clearHistory()" class="clear-history">Limpar Histórico</button>
         </div>
     </div>
     <script src="script.js"></script>
