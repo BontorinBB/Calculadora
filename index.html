@@ -4,7 +4,111 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 350px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+        }
+
+        .calculator {
+            background: #2d3436;
+            border-radius: 10px;
+            padding: 1rem;
+        }
+
+        .display {
+            margin-bottom: 1rem;
+        }
+
+        #display {
+            width: 100%;
+            height: 70px;
+            font-size: 2rem;
+            text-align: right;
+            padding: 0 1rem;
+            border: none;
+            border-radius: 5px;
+            background: #dfe6e9;
+            color: #2d3436;
+            font-weight: bold;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .btn {
+            height: 60px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .number {
+            background: #636e72;
+            color: white;
+        }
+
+        .zero {
+            grid-column: span 2;
+        }
+
+        .operator {
+            background: #fdcb6e;
+            color: #2d3436;
+        }
+
+        .equals {
+            background: #00b894;
+            color: white;
+        }
+
+        .clear {
+            background: #e17055;
+            color: white;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -39,6 +143,118 @@
             </div>
         </div>
     </div>
-    <script src="script.js"></script>
+
+    <script>
+        // Variáveis globais
+        let display = document.getElementById('display');
+        let currentInput = '0';
+        let shouldResetDisplay = false;
+
+        // Função para adicionar ao display
+        function appendToDisplay(value) {
+            console.log('Clicou no:', value); // Para debug
+            
+            if (currentInput === '0' || shouldResetDisplay) {
+                currentInput = value;
+                shouldResetDisplay = false;
+            } else {
+                currentInput += value;
+            }
+            display.value = currentInput;
+        }
+
+        // Função para limpar tudo
+        function clearAll() {
+            console.log('Limpando display');
+            currentInput = '0';
+            display.value = currentInput;
+        }
+
+        // Função para backspace
+        function backspace() {
+            console.log('Backspace');
+            if (currentInput.length > 1) {
+                currentInput = currentInput.slice(0, -1);
+            } else {
+                currentInput = '0';
+            }
+            display.value = currentInput;
+        }
+
+        // Função para calcular
+        function calculate() {
+            console.log('Calculando:', currentInput);
+            
+            try {
+                // Substituir × por * para cálculo
+                let expression = currentInput.replace(/×/g, '*');
+                
+                // Validar expressão
+                if (!/^[0-9+\-*/.()]+$/.test(expression)) {
+                    throw new Error('Expressão inválida');
+                }
+                
+                // Calcular resultado
+                let result = eval(expression);
+                
+                // Verificar se é um número válido
+                if (typeof result !== 'number' || !isFinite(result)) {
+                    throw new Error('Resultado inválido');
+                }
+                
+                // Arredondar
+                result = Math.round(result * 100000000) / 100000000;
+                
+                currentInput = result.toString();
+                display.value = currentInput;
+                shouldResetDisplay = true;
+                
+            } catch (error) {
+                console.log('Erro no cálculo:', error);
+                display.value = 'Erro';
+                setTimeout(() => {
+                    currentInput = '0';
+                    display.value = currentInput;
+                }, 1000);
+            }
+        }
+
+        // Suporte ao teclado
+        document.addEventListener('keydown', function(e) {
+            const key = e.key;
+            console.log('Tecla pressionada:', key);
+            
+            if ('0123456789'.includes(key)) {
+                appendToDisplay(key);
+            } else if (key === '+') {
+                appendToDisplay('+');
+            } else if (key === '-') {
+                appendToDisplay('-');
+            } else if (key === '*') {
+                appendToDisplay('×');
+            } else if (key === '/') {
+                appendToDisplay('/');
+            } else if (key === 'Enter' || key === '=') {
+                e.preventDefault();
+                calculate();
+            } else if (key === 'Escape' || key === 'c' || key === 'C') {
+                clearAll();
+            } else if (key === 'Backspace') {
+                backspace();
+            } else if (key === '.') {
+                appendToDisplay('.');
+            }
+        });
+
+        // Mensagem de inicialização
+        console.log('Calculadora iniciada! Teste clicando nos botões.');
+        
+        // Verificar se o display foi encontrado
+        if (display) {
+            console.log('Display encontrado com sucesso');
+        } else {
+            console.log('ERRO: Display não encontrado');
+        }
+    </script>
 </body>
 </html>
