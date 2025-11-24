@@ -1,64 +1,101 @@
 let display = document.getElementById('display');
-let currentNumber = '0';
-let operator = '';
-let previousNumber = '';
+let currentInput = '0';
+let shouldResetDisplay = false;
 
-function pressNumber(num) {
-    if (currentNumber === '0') {
-        currentNumber = num.toString();
+function updateDisplay() {
+    display.value = currentInput;
+}
+
+function appendToDisplay(value) {
+    if (currentInput === '0' || shouldResetDisplay) {
+        currentInput = value;
+        shouldResetDisplay = false;
     } else {
-        currentNumber += num.toString();
+        currentInput += value;
     }
-    display.value = currentNumber;
-}
-
-function pressOperator(op) {
-    operator = op;
-    previousNumber = currentNumber;
-    currentNumber = '0';
-}
-
-function calculateResult() {
-    let result;
-    let prev = parseFloat(previousNumber);
-    let current = parseFloat(currentNumber);
-    
-    switch(operator) {
-        case '+':
-            result = prev + current;
-            break;
-        case '-':
-            result = prev - current;
-            break;
-        case '×':
-            result = prev * current;
-            break;
-        case '/':
-            result = prev / current;
-            break;
-        default:
-            return;
-    }
-    
-    currentNumber = result.toString();
-    display.value = currentNumber;
-    operator = '';
-    previousNumber = '';
+    updateDisplay();
 }
 
 function clearAll() {
-    currentNumber = '0';
-    operator = '';
-    previousNumber = '';
-    display.value = currentNumber;
+    currentInput = '0';
+    updateDisplay();
 }
 
-function pressDot() {
-    if (!currentNumber.includes('.')) {
-        currentNumber += '.';
-        display.value = currentNumber;
+function backspace() {
+    if (currentInput.length > 1) {
+        currentInput = currentInput.slice(0, -1);
+    } else {
+        currentInput = '0';
+    }
+    updateDisplay();
+}
+
+function calculate() {
+    try {
+        // Substituir × por * para o cálculo
+        let expression = currentInput.replace(/×/g, '*');
+        
+        // Verificar se a expressão é válida
+        if (!isValidExpression(expression)) {
+            throw new Error('Expressão inválida');
+        }
+        
+        // Calcular o resultado
+        let result = eval(expression);
+        
+        // Verificar se o resultado é um número válido
+        if (typeof result !== 'number' || !isFinite(result)) {
+            throw new Error('Resultado inválido');
+        }
+        
+        // Arredondar para evitar números muito longos
+        result = Math.round(result * 100000000) / 100000000;
+        
+        currentInput = result.toString();
+        shouldResetDisplay = true;
+        updateDisplay();
+        
+    } catch (error) {
+        currentInput = 'Erro';
+        updateDisplay();
+        setTimeout(() => {
+            currentInput = '0';
+            updateDisplay();
+        }, 1000);
     }
 }
 
+function isValidExpression(expr) {
+    // Permitir apenas números, operadores e ponto decimal
+    return /^[0-9+\-*/.()]+$/.test(expr);
+}
+
+// Suporte ao teclado
+document.addEventListener('keydown', function(e) {
+    e.preventDefault();
+    
+    const key = e.key;
+    
+    if ('0123456789'.includes(key)) {
+        appendToDisplay(key);
+    } else if (key === '+') {
+        appendToDisplay('+');
+    } else if (key === '-') {
+        appendToDisplay('-');
+    } else if (key === '*') {
+        appendToDisplay('×');
+    } else if (key === '/') {
+        appendToDisplay('/');
+    } else if (key === 'Enter' || key === '=') {
+        calculate();
+    } else if (key === 'Escape' || key === 'c' || key === 'C') {
+        clearAll();
+    } else if (key === 'Backspace') {
+        backspace();
+    } else if (key === '.') {
+        appendToDisplay('.');
+    }
+});
+
 // Inicializar
-display.value = currentNumber;
+updateDisplay();
