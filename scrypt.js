@@ -15,15 +15,19 @@ function updateHistory() {
 }
 
 function appendToDisplay(value) {
+    // Limitar o tamanho do display
     if (currentInput.length >= 20) return;
     
-    // Prevent multiple operators in sequence
     const lastChar = currentInput.slice(-1);
+    
+    // Prevenir múltiplos operadores em sequência
     if ('+-*/'.includes(value) && '+-*/'.includes(lastChar)) {
-        return;
+        // Substituir o último operador pelo novo
+        currentInput = currentInput.slice(0, -1) + value;
+    } else {
+        currentInput += value;
     }
     
-    currentInput += value;
     resultElement.value = currentInput;
 }
 
@@ -41,40 +45,68 @@ function calculate() {
     if (!currentInput) return;
     
     try {
-        // Replace × with * for evaluation
+        // Substituir × por * para cálculo
         let expression = currentInput.replace(/×/g, '*');
         
-        // Basic validation
-        if (/[^0-9+\-*/.()]/.test(expression)) {
-            throw new Error('Caractere inválido');
+        // Validação básica de segurança
+        if (!/^[0-9+\-*/.()]+$/.test(expression)) {
+            throw new Error('Expressão inválida');
         }
         
-        // Evaluate safely
-        let result = eval(expression);
+        // Verificar parênteses balanceados
+        let parenthesesCount = 0;
+        for (let char of expression) {
+            if (char === '(') parenthesesCount++;
+            if (char === ')') parenthesesCount--;
+            if (parenthesesCount < 0) throw new Error('Parênteses desbalanceados');
+        }
+        if (parenthesesCount !== 0) throw new Error('Parênteses desbalanceados');
         
-        // Check for division by zero
-        if (!isFinite(result)) {
-            throw new Error('Divisão por zero');
+        // Avaliar a expressão de forma segura
+        let result;
+        
+        // Usar Function constructor como alternativa mais segura ao eval
+        try {
+            result = Function('"use strict"; return (' + expression + ')')();
+        } catch (e) {
+            throw new Error('Erro no cálculo');
         }
         
-        // Round to avoid floating point issues
+        // Verificar se o resultado é válido
+        if (typeof result !== 'number' || !isFinite(result)) {
+            throw new Error('Resultado inválido');
+        }
+        
+        // Arredondar para evitar problemas de ponto flutuante
         result = Math.round(result * 100000000) / 100000000;
         
+        // Salvar no histórico
         const calculation = `${currentInput} = ${result}`;
         history.push(calculation);
+        
+        // Manter apenas os últimos 50 cálculos
+        if (history.length > 50) {
+            history = history.slice(-50);
+        }
+        
         localStorage.setItem('calculatorHistory', JSON.stringify(history));
         
+        // Atualizar display
         currentInput = result.toString();
         resultElement.value = currentInput;
         updateHistory();
         
     } catch (error) {
-        resultElement.value = 'Erro';
-        currentInput = '';
-        setTimeout(() => {
-            resultElement.value = '';
-        }, 1000);
+        showError();
     }
+}
+
+function showError() {
+    resultElement.value = 'Erro';
+    currentInput = '';
+    setTimeout(() => {
+        resultElement.value = '';
+    }, 1000);
 }
 
 function clearHistory() {
@@ -83,14 +115,21 @@ function clearHistory() {
     updateHistory();
 }
 
-// Keyboard support
+// Suporte ao teclado
 document.addEventListener('keydown', (e) => {
     const key = e.key;
     
     if ('0123456789'.includes(key)) {
         appendToDisplay(key);
-    } else if ('+-*/'.includes(key)) {
-        appendToDisplay(key === '*' ? '×' : key);
+    } else if (key === '+') {
+        appendToDisplay('+');
+    } else if (key === '-') {
+        appendToDisplay('-');
+    } else if (key === '*') {
+        appendToDisplay('×');
+    } else if (key === '/') {
+        e.preventDefault(); // Prevenir o menu de contexto no Firefox
+        appendToDisplay('/');
     } else if (key === 'Enter' || key === '=') {
         e.preventDefault();
         calculate();
@@ -100,8 +139,12 @@ document.addEventListener('keydown', (e) => {
         deleteLast();
     } else if (key === '.') {
         appendToDisplay('.');
+    } else if (key === '(') {
+        appendToDisplay('(');
+    } else if (key === ')') {
+        appendToDisplay(')');
     }
 });
 
-// Initialize
+// Inicializar
 updateHistory();
